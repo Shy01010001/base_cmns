@@ -254,10 +254,11 @@ class ImageMultiHeadedAttention(nn.Module):
         Mv = np.sqrt(20) * Mv.squeeze(0).repeat(key.size(0), 1, 1)
         key = torch.cat((key, Mk), dim = 1)
         value = torch.cat((value, Mv), dim = 1)
+        print(value.size())
         query, key, value = \
             [x.view(nbatches, -1, self.h, self.d_k).transpose(1, 2)
              for x in [query, key, value]]
-
+        print(key.size())
         x, self.attn = attention(query, key, value, mask=None,
                                  dropout=self.dropout)
         x = x.transpose(1, 2).contiguous() \
@@ -456,8 +457,8 @@ class BaseCMN(AttModel):
 
     def _prepare_feature_forward(self, att_feats, att_masks=None, seq=None):
         att_feats, att_masks = self.clip_att(att_feats, att_masks)
-        att_feats = pack_wrapper(self.att_embed, att_feats, att_masks)
-
+        att_feats = pack_wrapper(att_feats, att_masks)
+        # print(att_feats.size())
         if att_masks is None:
             att_masks = att_feats.new_ones(att_feats.shape[:2], dtype=torch.long)
 
